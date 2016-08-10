@@ -3,10 +3,13 @@ Minipipe - a minimal end-to-end pipeline.
 
 ### Local Deployment
 1. Install [minikube](https://github.com/kubernetes/minikube). Note that you need a beefy machine and the use of vmware is **highly** recommended.
-2. Fire up a Kubernetes cluster with e.g. `minikube start --cpus=4 --memory=8192 --vm-driver=vmwarefusion`.
-3. Deploy minipipe with `./minipipe.sh --create`.
-4. Track the deployment progress from the Kubernetes dashboard with `minikube dashboard`.
-5. Note that it might take a while until the cluster is usable, even after all the pods are up and running.
+2. Install `kubectl` if you don't have it already. You can grab a copy of the binary for [linux](https://storage.googleapis.com/kubernetes-release/release/v1.2.4/bin/linux/amd64/kubectl) or [osx](https://storage.googleapis.com/kubernetes-release/release/v1.2.4/bin/darwin/amd64/kubectl
+) and put it somewhere in your `PATH`. On osx you can also install the binary using brew (`brew install kubectl`).
+
+3. Fire up a Kubernetes cluster with e.g. `minikube start --cpus=4 --memory=8192 --vm-driver=vmwarefusion`.
+4. Deploy minipipe with `./minipipe.sh --create`.
+5. Track the deployment progress from the Kubernetes dashboard with `minikube dashboard`.
+6. Note that it might take a while until the cluster is usable, even after all the pods are up and running.
 
 
 ### Example Use Case
