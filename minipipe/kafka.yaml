@@ -118,3 +118,38 @@ spec:
               value: BACKWARD
             - name: CONNECTOR_format_class
               value: io.confluent.connect.hdfs.parquet.ParquetFormat
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-rest-proxy
+spec:
+  type: NodePort
+  ports:
+    - name: client
+      port: 8082
+      nodePort: 32767
+  selector:
+    app: kafka-rest-proxy
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kafka-rest-proxy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka-rest-proxy
+    spec:
+      containers:
+        - name: kafka-rest-proxy
+          image: confluent/rest-proxy:3.0.0
+          env:
+            - name: RP_ZOOKEEPER_CONNECT
+              value: zookeeper:2181
+              name: RP_SCHEMA_REGISTRY_URL
+              value: http://schema:8081
+          ports:
+            - containerPort: 8082
