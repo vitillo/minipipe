@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hdfs-namenode
+spec:
+  ports:
+    - name: client
+      port: 8020
+  selector:
+    app: hdfs
+    type: namenode
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hdfs-namenode
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hdfs
+        type: namenode
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+      containers:
+        - name: namenode
+          image: uhopper/hadoop-namenode:2.7.2
+          env:
+            - name: CLUSTER_NAME
+              value: hadoop
+            - name: HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check
+              value: "false"
+            - name: MULTIHOMED_NETWORK
+              value: "0"
+          ports:
+            - containerPort: 50070
+            - containerPort: 8020
+          volumeMounts:
+            - mountPath: /hadoop/dfs/data
+              name: data
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hdfs-datanode
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hdfs
+        type: datanode
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+      containers:
+        - name: datanode
+          image: uhopper/hadoop-datanode:2.7.2
+          env:
+            - name: CORE_CONF_fs_defaultFS
+              value: hdfs://hdfs-namenode:8020
+            - name: HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check
+              value: "false"
+          ports:
+            - containerPort: 50075
+            - containerPort: 50010
+            - containerPort: 50020
+          volumeMounts:
+            - mountPath: /hadoop/dfs/data
+              name: data

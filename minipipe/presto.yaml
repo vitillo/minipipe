@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: presto
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: presto
+    spec:
+      containers:
+        - name: presto
+          image: mozdata/docker-presto:0.151
+          imagePullPolicy: Always
+          env:
+            - name: CONFIG_CONF_QUERY_MAX___MEMORY
+              value: 128MB
+            - name: CONFIG_CONF_QUERY_MAX___MEMORY___PER___NODE
+              value: 128MB
+            - name: JVM_CONF_XMX
+              value: 256M
+            - name: HIVE_CONF_HIVE_METASTORE_URI
+              value: thrift://hive-metastore:9083
+          ports:
+            - containerPort: 8080

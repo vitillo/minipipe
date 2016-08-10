@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-1
+spec:
+  ports:
+    - name: client
+      port: 9092
+  selector:
+    app: kafka
+    server-id: "1"
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kafka-1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka
+        server-id: "1"
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+      containers:
+        - name: server
+          image: confluent/kafka:0.10.0.0-cp1
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2181
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: kafka-1
+            - name: KAFKA_BROKER_ID
+              value: "1"
+          ports:
+            - containerPort: 9092
+          volumeMounts:
+            - mountPath: /var/lib/kafka
+              name: data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: schema
+spec:
+  ports:
+    - name: client
+      port: 8081
+  selector:
+    app: kafka-schema-registry
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kafka-schema-registry
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka-schema-registry
+    spec:
+      containers:
+        - name: kafka-schema-registry
+          image: confluent/schema-registry:3.0.0
+          env:
+            - name: SR_KAFKASTORE_CONNECTION_URL
+              value: zookeeper:2181
+            - name: SR_KAFKASTORE_TOPIC
+              value: "_schema_registry"
+            - name: SR_LISTENERS
+              value: "http://0.0.0.0:8081"
+          ports:
+            - containerPort: 8081
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kafka-connect
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kafka-connect
+    spec:
+      containers:
+        - name: kafka-connect
+          image: mozdata/docker-kafka-connect-standalone:3.0.0
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_SERVER
+              value: kafka-1
+            - name: SCHEMA_SERVER
+              value: schema
+            - name: ZOOKEEPER_SERVER
+              value: zookeeper
+            - name: CONNECTOR_name
+              value: hdfs-sink
+            - name: CONNECTOR_connector_class
+              value: io.confluent.connect.hdfs.HdfsSinkConnector
+            - name: CONNECTOR_tasks_max
+              value: "1"
+            - name: CONNECTOR_topics
+              value: connect_test
+            - name: CONNECTOR_hdfs_url
+              value: hdfs://hdfs-namenode:8020
+            - name: CONNECTOR_flush_size
+              value: "1"
+            - name: CONNECTOR_hive_metastore_uris
+              value: thrift://hive-metastore:9083
+            - name: CONNECTOR_hive_integration
+              value: "true"
+            - name: CONNECTOR_schema_compatibility
+              value: BACKWARD
+            - name: CONNECTOR_format_class
+              value: io.confluent.connect.hdfs.parquet.ParquetFormat
