@@ -6,7 +6,7 @@ function wait() {
     done
 }
 
-function start() {
+function create() {
     kubectl create -f ./minipipe/zookeeper.yaml && wait
     kubectl create -f ./minipipe/hdfs.yaml && wait
     kubectl create -f ./minipipe/kafka.yaml && wait
@@ -21,8 +21,8 @@ function delete() {
 cd "$(dirname "$0")"
 while [ $# -gt 0 ]; do
     case "$1" in
-        --start)
-            start
+        --create)
+            create
             ;;
         --delete)
             delete

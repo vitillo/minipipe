@@ -1,4 +1,15 @@
 apiVersion: v1
+kind: Service
+metadata:
+  name: presto
+spec:
+  ports:
+    - name: client
+      port: 8080
+  selector:
+    app: presto
+---
+apiVersion: v1
 kind: ReplicationController
 metadata:
   name: presto
@@ -24,3 +35,59 @@ spec:
               value: thrift://hive-metastore:9083
           ports:
             - containerPort: 8080
+            - containerPort: 8889
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: redash
+spec:
+  type: NodePort
+  ports:
+    - name: client
+      port: 5000
+      nodePort: 32766
+  selector:
+    app: redash
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: redash
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redash
+    spec:
+      containers:
+        - name: redis
+          image: redis:2.8
+          ports:
+            - containerPort: 6379
+        - name: redash
+          image: mozdata/docker-redash-presto:0.12.0.b2118
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PRESTO_URI
+              value: presto
+            - name: PRESTO_PORT
+              value: "8080"
+            - name: DB_URI
+              value: postgresql
+            - name: DB_USER
+              value: hive
+            - name: PGPASSWORD
+              value: password
+            - name: REDASH_STATIC_ASSETS_PATH
+              value: "../rd_ui/dist/"
+            - name: REDASH_LOG_LEVEL
+              value: "INFO"
+            - name: REDASH_REDIS_URL
+              value: "redis://localhost:6379/0"
+            - name: REDASH_DATABASE_URL
+              value: "postgresql://hive:password@postgresql/redash"
+            - name: REDASH_COOKIE_SECRET
+              value: veryverysecret

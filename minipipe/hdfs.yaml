@@ -9,7 +9,6 @@ spec:
   selector:
     app: hdfs
     type: namenode
-
 ---
 apiVersion: v1
 kind: ReplicationController
@@ -42,7 +41,6 @@ spec:
           volumeMounts:
             - mountPath: /hadoop/dfs/data
               name: data
-
 ---
 apiVersion: v1
 kind: ReplicationController
