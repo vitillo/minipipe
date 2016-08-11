@@ -1,7 +1,10 @@
 ## Minipipe
 Minipipe: a minimal data pipeline. 
 
-The goal of this project is to demonstrate how to build a simple pipeline that accepts data over HTTP, stores it under HDFS (or potentially S3), and makes it queryable from analytic tool like Spark or Presto. As it's often the case with software, once the right storage mechanism has been chosen the problem becomes considerably easier to solve. [Parquet](https://parquet.apache.org/) is a columnar storage system optimized for analytic workloads and arguably the lingua franca of the Hadoop ecosystem, which is the reason minipipe is based around it. Even though minipipe is meant to be a simple demo, all the main pieces are there to build a pipeline that can be used in production.
+The goal of this project is to demonstrate how to build a simple pipeline that accepts data over HTTP, stores it under HDFS (or potentially S3), and makes it queryable from an analytic tool like Spark or Presto. As it's often the case with software, once the right storage mechanism has been chosen the problem becomes considerably easier to solve. [Parquet](https://parquet.apache.org/) is a columnar storage system optimized for analytic workloads and arguably the lingua franca of the Hadoop ecosystem, which is the reason minipipe is based around it.
+
+###Demo video
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/V_KiIaRwHYg/maxresdefault.jpg)](http://www.youtube.com/watch?v=V_KiIaRwHYg "Minipipe Demo")
 
 ### Local Deployment
 1. Install [minikube](https://github.com/kubernetes/minikube). Note that you will need a **beefy** machine and the use of vmware is **highly** recommended.
